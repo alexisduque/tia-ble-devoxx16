@@ -9,11 +9,15 @@ TEMPLATE_PATH = ../../../../../../components/toolchain/gcc
 ifeq ($(OS),Windows_NT)
 include $(TEMPLATE_PATH)/Makefile.windows
 else
-include $(TEMPLATE_PATH)/Makefile.posix
+# include $(TEMPLATE_PATH)/Makefile.posix
 endif
 
 MK := mkdir
 RM := rm -rf
+
+GNU_INSTALL_ROOT := /opt/gcc-arm-none-eabi-4_8-2014q1
+GNU_VERSION := 4.8.3
+GNU_PREFIX := arm-none-eabi
 
 #echo suspend
 ifeq ("$(VERBOSE)","1")
@@ -51,8 +55,8 @@ $(abspath ../../../../../../components/drivers_nrf/hal/nrf_delay.c) \
 $(abspath ../../../../../../components/drivers_nrf/common/nrf_drv_common.c) \
 $(abspath ../../../../../../components/drivers_nrf/gpiote/nrf_drv_gpiote.c) \
 $(abspath ../../../../../../components/drivers_nrf/pstorage/pstorage.c) \
-$(abspath ../../../../../bsp/bsp.c) \
-$(abspath ../../../../../bsp/bsp_btn_ble.c) \
+$(abspath ../../../../../../components/bsp/bsp.c) \
+$(abspath ../../../../../../components/bsp/bsp_btn_ble.c) \
 $(abspath ../../../main.c) \
 $(abspath ../../../../../../components/ble/common/ble_advdata.c) \
 $(abspath ../../../../../../components/ble/ble_advertising/ble_advertising.c) \
@@ -72,7 +76,7 @@ ASM_SOURCE_FILES  = $(abspath ../../../../../../components/toolchain/gcc/gcc_sta
 INC_PATHS  = -I$(abspath ../../../config)
 INC_PATHS += -I$(abspath ../../../)
 INC_PATHS += -I$(abspath ../../../../../../components/drivers_nrf/config)
-INC_PATHS += -I$(abspath ../../../../../bsp)
+INC_PATHS += -I$(abspath ../../../../../../components//bsp)
 INC_PATHS += -I$(abspath ../../../../../../components/libraries/fifo)
 INC_PATHS += -I$(abspath ../../../../../../components/libraries/util)
 INC_PATHS += -I$(abspath ../../../../../../components/drivers_nrf/pstorage)
