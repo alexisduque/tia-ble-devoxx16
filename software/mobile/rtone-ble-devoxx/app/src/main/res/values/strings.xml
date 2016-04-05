@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Rtone BLE</string>
+    <string name="feature_name">BLINKY</string>
+    <string name="unknown_device">Unknown Device</string>
+
+    <string name="rationale_title">Permission required</string>
+    <string name="rationale_location_permission_denied">Starting scanning failed. Access denied.</string>
+    <string name="rationale_location_message">From Android 6.0 Marshmallow onwards the system requires access to device\'s location in order to scan for Bluetooth Smart devices.
+      \n\nBluetooth beacons, like iBeacons or Eddystone beacons, may be used to determine the phone\'s and user\'s location, However <b>nRF Blinky</b> will not be using device location information for any purpose.</string>
+    <string name="rationale_location_cancel_message">Please turn on location services from the locations settings manually.</string>
+
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+
+	<string name="action_settings">Settings</string>
+    <string name="action_start_scan">Start Scan</string>
+    <string name="action_stop_scan">Stop Scan</string>
+    <string name="action_connect">CONNECT</string>
+    <string name="action_disconnect">DISCONNECT</string>
+    <string name="turn_on">ON</string>
+    <string name="turn_off">OFF</string>
+    <string name="ble_not_supported">This device does not support Bluetooth Smart!</string>
+    <string name="please_connect">Please connect to device first!</string>
+    <string name="error_msg" formatted="false">%s (error %d)</string>
+</resources>
