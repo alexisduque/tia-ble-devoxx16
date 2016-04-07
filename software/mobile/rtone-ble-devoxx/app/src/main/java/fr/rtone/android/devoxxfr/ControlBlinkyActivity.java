@@ -45,10 +45,10 @@ public class ControlBlinkyActivity extends AppCompatActivity {
 				mActionConnect.setText(getString(R.string.action_disconnect));
 
 				if (mBlinkyDevice.isOn()) {
-					mImageBulb.setImageDrawable(ContextCompat.getDrawable(ControlBlinkyActivity.this, R.drawable.bulb_on));
+					mImageBulb.setImageDrawable(ContextCompat.getDrawable(ControlBlinkyActivity.this, R.drawable.heart_rate_red));
 					mActionOnOff.setText(getString(R.string.turn_off));
 				} else {
-					mImageBulb.setImageDrawable(ContextCompat.getDrawable(ControlBlinkyActivity.this, R.drawable.bulb_off));
+					mImageBulb.setImageDrawable(ContextCompat.getDrawable(ControlBlinkyActivity.this, R.drawable.heart_rate_red_off));
 					mActionOnOff.setText(getString(R.string.turn_on));
 				}
 
