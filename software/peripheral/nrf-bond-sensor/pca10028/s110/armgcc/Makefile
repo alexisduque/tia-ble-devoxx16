@@ -103,7 +103,7 @@ INC_PATHS += -I$(abspath ../../../../../../components/ble/ble_services/ble_hrs)
 OBJECT_DIRECTORY = _build
 LISTING_DIRECTORY = $(OBJECT_DIRECTORY)
 OUTPUT_BINARY_DIRECTORY = $(OBJECT_DIRECTORY)
-
+OUTPUT_FILENAME=nrf51422_xxac_s110
 # Sorting removes duplicates
 BUILD_DIRECTORIES := $(sort $(OBJECT_DIRECTORY) $(OUTPUT_BINARY_DIRECTORY) $(LISTING_DIRECTORY) )
 
@@ -229,10 +229,10 @@ cleanobj:
 	$(RM) $(BUILD_DIRECTORIES)/*.o
 
 flash: $(MAKECMDGOALS)
-	@echo Flashing: $(OUTPUT_BINARY_DIRECTORY)/$<.hex
-	nrfjprog --reset --program $(OUTPUT_BINARY_DIRECTORY)/$<.hex
+	@echo Flashing: $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).hex
+	nrfjprog --program $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).hex --sectorerase
 
 ## Flash softdevice
 flash_softdevice: 
 	@echo Flashing: s110_softdevice.hex
-	nrfjprog --reset --program ../../../../../../components/softdevice/s110/hex/s110_softdevice.hex
+	nrfjprog --program ../../../../../../components/softdevice/s110/hex/s110_softdevice.hex
