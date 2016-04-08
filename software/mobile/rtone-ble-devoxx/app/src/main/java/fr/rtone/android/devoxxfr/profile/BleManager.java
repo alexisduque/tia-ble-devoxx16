@@ -41,8 +41,6 @@ import java.util.UUID;
  * @param <E> The com.example.hani.myapplication.profile callbacks type
  */
 public abstract class BleManager<E extends BleManagerCallbacks> {
-	@SuppressWarnings("unused")
-	private final static String TAG = "BleManager";
 
 	private static final UUID CLIENT_CHARACTERISTIC_CONFIG_DESCRIPTOR_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
@@ -57,6 +55,8 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 	private final static String ERROR_AUTH_ERROR_WHILE_BONDED = "Phone has lost bonding information";
 	private final static String ERROR_WRITE_DESCRIPTOR = "Error on writing descriptor";
 	private final static String ERROR_READ_CHARACTERISTIC = "Error on reading characteristic";
+
+	private final static String TAG = "BleManager";
 
 	protected E mCallbacks;
 	private Handler mHandler;
@@ -79,10 +79,11 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 			switch (bondState) {
 				case BluetoothDevice.BOND_BONDING:
 					mCallbacks.onBondingRequired();
+					Log.d(TAG, "Bonding requried");
 					break;
 				case BluetoothDevice.BOND_BONDED:
 					mCallbacks.onBonded();
-
+					Log.d(TAG, "Bonding OK");
 					// Start initializing again.
 					// In fact, bonding forces additional, internal service discovery (at least on Nexus devices), so this method may safely be used to start this process again.
 					mBluetoothGatt.discoverServices();
@@ -103,6 +104,7 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 			// String values are used as the constants are not available for Android 4.3.
 			final int variant = intent.getIntExtra("android.bluetooth.device.extra.PAIRING_VARIANT"/*BluetoothDevice.EXTRA_PAIRING_VARIANT*/, 0);
 
+			Log.d(TAG, "Bonding with MITM required");
 			// The API below is available for Android 4.4 or newer.
 
 			// An app may set the PIN here or set pairing confirmation (depending on the variant) using:
@@ -193,6 +195,7 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 			// the receiver must have been not registered or unregistered before
 		}
 		if (mBluetoothGatt != null) {
+			Log.d(TAG, "Close the GATT");
 			mBluetoothGatt.close();
 			mBluetoothGatt = null;
 		}
@@ -287,10 +290,40 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 
 		// Check characteristic property
 		final int properties = characteristic.getProperties();
-		if ((properties & BluetoothGattCharacteristic.PROPERTY_NOTIFY) == 0)
+		if ((properties & BluetoothGattCharacteristic.PROPERTY_NOTIFY) == 0) {
+			Log.d(TAG, "Notifications unvailablme for :" + characteristic.getUuid().toString());
 			return false;
 
+		}
+
 		gatt.setCharacteristicNotification(characteristic, true);
+		final BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIG_DESCRIPTOR_UUID);
+		if (descriptor != null) {
+			descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+			return gatt.writeDescriptor(descriptor);
+		}
+		return false;
+	}
+
+	/**
+	 * Disables notifications on given characteristic
+	 *
+	 * @return true is the request has been sent, false if one of the arguments was <code>null</code> or the characteristic does not have the CCCD.
+	 */
+	protected final boolean disableNotifications(final BluetoothGattCharacteristic characteristic) {
+		final BluetoothGatt gatt = mBluetoothGatt;
+		if (gatt == null || characteristic == null)
+			return false;
+
+		// Check characteristic property
+		final int properties = characteristic.getProperties();
+		if ((properties & BluetoothGattCharacteristic.PROPERTY_NOTIFY) == 0) {
+			Log.d(TAG, "Notifications unavailable for :" + characteristic.getUuid().toString());
+			return false;
+
+		}
+
+		gatt.setCharacteristicNotification(characteristic, false);
 		final BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIG_DESCRIPTOR_UUID);
 		if (descriptor != null) {
 			descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
@@ -431,6 +464,7 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 			WRITE,
 			READ,
 			ENABLE_NOTIFICATIONS,
+			DISABLE_NOTIFICATIONS,
 			ENABLE_INDICATIONS
 		}
 
@@ -464,6 +498,10 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 
 		public static Request newEnableIndicationsRequest(final BluetoothGattCharacteristic characteristic) {
 			return new Request(Type.ENABLE_INDICATIONS, characteristic);
+		}
+
+		public static Request newDisableNotificationRequest(final BluetoothGattCharacteristic characteristic) {
+			return new Request(Type.DISABLE_NOTIFICATIONS, characteristic);
 		}
 	}
 
@@ -646,7 +684,7 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 					Log.i(TAG, "Battery char. read:" + batteryValue);
 					// The Battery Level value has been read. Let's try to enable Battery Level notifications.
 					// If the Battery Level characteristic does not have the NOTIFY property, proceed with the initialization queue.
-					if (!setBatteryNotifications(true))
+					if (!setBatteryNotifications(false))
 						nextRequest();
 				} else {
 					// The value has been read. Notify the manager and proceed with the initialization queue.
@@ -655,7 +693,10 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 				}
 			} else if (status == BluetoothGatt.GATT_INSUFFICIENT_AUTHENTICATION) {
 				if (gatt.getDevice().getBondState() != BluetoothDevice.BOND_NONE) {
+					Log.w(TAG, "Gatt authentication error while bonded");
 					mCallbacks.onError(ERROR_AUTH_ERROR_WHILE_BONDED, status);
+				} else {
+					Log.w(TAG, "Gatt missing authentication");
 				}
 			} else {
 				onError(ERROR_READ_CHARACTERISTIC, status);
@@ -753,6 +794,9 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 				case ENABLE_INDICATIONS: {
 					enableIndications(request.characteristic);
 					break;
+				}
+				case  DISABLE_NOTIFICATIONS: {
+					disableNotifications(request.characteristic);
 				}
 			}
 		}

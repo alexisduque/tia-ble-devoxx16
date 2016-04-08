@@ -64,23 +64,36 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:layout_below="@+id/appbar_layout"
-		android:layout_above="@+id/button_blinky"
-		android:layout_marginBottom="16dp"
-		android:layout_marginTop="16dp">
+		android:layout_above="@+id/button_hrm"
+		android:layout_margin="50dp">
 
 		<ImageView
-			android:id="@+id/img_bulb"
+			android:id="@+id/img_hrm"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:layout_gravity="center"
+			android:scaleType="centerInside"
+			android:src="@drawable/heart_rate_red_off"
+			android:layout_centerInParent="true"
+			android:cropToPadding="false"
+			android:contextClickable="false" />
+
+		<TextView
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_gravity="center"
-			android:scaleType="centerCrop"
-			android:src="@drawable/heart_rate_red"
+			android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+			android:id="@+id/hrmText"
+			android:textStyle="bold"
+			android:textColor="#e70000"
 			android:layout_centerVertical="true"
-			android:layout_centerHorizontal="true" />
+			android:layout_centerHorizontal="true"
+			android:layout_alignParentEnd="false"
+			android:layout_alignParentStart="false" />
+
 	</RelativeLayout>
 
 	<Button
-		android:id="@+id/button_blinky"
+		android:id="@+id/button_hrm"
 		android:layout_width="200dp"
 		android:layout_height="wrap_content"
 		android:layout_centerHorizontal="true"
