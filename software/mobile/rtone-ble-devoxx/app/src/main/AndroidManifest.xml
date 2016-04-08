@@ -24,7 +24,7 @@
 		</activity>
 		<activity
 			android:name="fr.rtone.android.devoxxfr.MainActivity"
-			android:icon="@drawable/ic_blinky_feature"
+			android:icon="@drawable/ic_hrm_feature"
 			android:label="@string/feature_name"
 			android:launchMode="singleTop">
 			<intent-filter>
@@ -34,11 +34,11 @@
 			</intent-filter>
 		</activity>
 		<activity
-			android:name="fr.rtone.android.devoxxfr.ControlBlinkyActivity"
+			android:name=".ControlHrmActivity"
 			android:launchMode="singleTop">
 		</activity>
 
-		<service android:name="fr.rtone.android.devoxxfr.service.BlinkyService"/>
+		<service android:name=".service.HrmService"/>
 	</application>
 
 </manifest>

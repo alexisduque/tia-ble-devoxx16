@@ -50,7 +50,7 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.rtone.android.devoxxfr.service.BlinkyService;
+import fr.rtone.android.devoxxfr.service.HrmService;
 import fr.rtone.android.devoxxfr.adapter.BleDeviceAdapter;
 import fr.rtone.android.devoxxfr.adapter.ExtendedBluetoothDevice;
 import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat;
@@ -105,9 +105,9 @@ public class MainActivity extends AppCompatActivity implements PermissionRationa
 	@Override
 	public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
 		BluetoothDevice device = mBleDeviceListAdapter.getItem(position);
-		Intent controlBlinkIntent = new Intent(this, ControlBlinkyActivity.class);
-		controlBlinkIntent.putExtra(BlinkyService.EXTRA_DEVICE_NAME, device.getName());
-		controlBlinkIntent.putExtra(BlinkyService.EXTRA_DEVICE_ADDRESS, device.getAddress());
+		Intent controlBlinkIntent = new Intent(this, ControlHrmActivity.class);
+		controlBlinkIntent.putExtra(HrmService.EXTRA_DEVICE_NAME, device.getName());
+		controlBlinkIntent.putExtra(HrmService.EXTRA_DEVICE_ADDRESS, device.getAddress());
 		startActivity(controlBlinkIntent);
 
 		mBleDeviceListAdapter.clear();
