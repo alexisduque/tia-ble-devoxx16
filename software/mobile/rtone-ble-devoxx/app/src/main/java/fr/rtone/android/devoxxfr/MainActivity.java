@@ -142,7 +142,8 @@ public class MainActivity extends AppCompatActivity implements PermissionRationa
 	@Override
 	protected void onStart() {
 		super.onStart();
-
+		startLeScan();
+		/* STEP 1 - PERMISSION
 		if (checkIfVersionIsMarshmallowOrAbove()) {
 			registerReceiver(mLocationProviderChangedReceiver, new IntentFilter(LocationManager.MODE_CHANGED_ACTION));
 			connectToGoogleApiClient();
@@ -154,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements PermissionRationa
 				startLeScan();
 			}
 		}
+		*/
 	}
 
 	@Override
@@ -195,6 +197,8 @@ public class MainActivity extends AppCompatActivity implements PermissionRationa
 		// as you specify a parent activity in AndroidManifest.xml.
 		switch (item.getItemId()) {
 			case R.id.action_start_scan:
+				startLeScan();
+				/* STEP 1 - PERMISSION
 				if (checkIfVersionIsMarshmallowOrAbove()) {
 					if (locationServicesRequestApproved)
 						checkForLocationPermissionsAndScan();
@@ -208,6 +212,7 @@ public class MainActivity extends AppCompatActivity implements PermissionRationa
 						startLeScan();
 					}
 				}
+				*/
 				return true;
 			case R.id.action_stop_scan:
 				stopLeScan();
