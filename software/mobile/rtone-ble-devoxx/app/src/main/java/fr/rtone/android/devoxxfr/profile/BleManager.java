@@ -147,6 +147,7 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 	 * @return autoConnect flag value
 	 */
 	protected boolean shouldAutoConnect() {
+		/*** STEP 3 : Connexion **/
 		return true;
 	}
 
@@ -175,15 +176,7 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 	 */
 	public boolean disconnect() {
 		/*** TIA STEP 6 - Disconnect ***/
-		mUserDisconnected = true;
-
-		if (mConnected && mBluetoothGatt != null) {
-			mCallbacks.onDeviceDisconnecting();
-			mBluetoothGatt.disconnect();
-			return true;
-		}
 		return false;
-		/****/
 	}
 
 	/**
@@ -191,20 +184,6 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 	 */
 	public void close() {
 		/** TIA STEP 6 - Disconnect **/
-		try {
-			mContext.unregisterReceiver(mBondingBroadcastReceiver);
-			mContext.unregisterReceiver(mPairingRequestBroadcastReceiver);
-		} catch (Exception e) {
-			// the receiver must have been not registered or unregistered before
-		}
-		if (mBluetoothGatt != null) {
-			Log.d(TAG, "Close the GATT");
-			mBluetoothGatt.close();
-			mBluetoothGatt = null;
-		}
-		mUserDisconnected = false;
-
-		/*****/
 	}
 
 	/**
@@ -290,25 +269,6 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 	 */
 	protected final boolean enableNotifications(final BluetoothGattCharacteristic characteristic) {
 		/*** TIA STEP 5 NOTIFICATION ****/
-		final BluetoothGatt gatt = mBluetoothGatt;
-		if (gatt == null || characteristic == null)
-			return false;
-
-		// Check characteristic property
-		final int properties = characteristic.getProperties();
-		if ((properties & BluetoothGattCharacteristic.PROPERTY_NOTIFY) == 0) {
-			Log.d(TAG, "Notifications unvailablme for :" + characteristic.getUuid().toString());
-			return false;
-
-		}
-
-		gatt.setCharacteristicNotification(characteristic, true);
-		final BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIG_DESCRIPTOR_UUID);
-		if (descriptor != null) {
-			descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-			return gatt.writeDescriptor(descriptor);
-		}
-		/****/
 		return false;
 	}
 
@@ -601,59 +561,11 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 
 		@Override
 		public final void onConnectionStateChange(final BluetoothGatt gatt, final int status, final int newState) {
-			if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
-				// Notify the parent activity/service
-				mConnected = true;
-				mCallbacks.onDeviceConnected();
+				/***** TIA STEP 3 Connection */
 
-				/*
-				 * The onConnectionStateChange event is triggered just after the Android connects to a device.
-				 * In case of bonded devices, the encryption is reestablished AFTER this callback is called.
-				 * Moreover, when the device has Service Changed indication enabled, and the list of services has changed (e.g. using the DFU),
-				 * the indication is received few milliseconds later, depending on the connection interval.
-				 * When received, Android will start performing a service discovery operation itself, internally.
-				 *
-				 * If the mBluetoothGatt.discoverServices() method would be invoked here, if would returned cached services,
-				 * as the SC indication wouldn't be received yet.
-				 * Therefore we have to postpone the service discovery operation until we are (almost, as there is no such callback) sure, that it had to be handled.
-				 * Our tests has shown that 600 ms is enough. It is important to call it AFTER receiving the SC indication, but not necessarily
-				 * after Android finishes the internal service discovery.
-				 *
-				 * NOTE: This applies only for bonded devices with Service Changed characteristic, but to be sure we will postpone
-				 * service discovery for all devices.
-				 */
 				/***** TIA STEP 4 Decouverte */
-				mHandler.postDelayed(new Runnable() {
-					@Override
-					public void run() {
-						// Some proximity tags (e.g. nRF PROXIMITY) initialize bonding automatically when connected.
-						if (gatt.getDevice().getBondState() != BluetoothDevice.BOND_BONDING) {
-							gatt.discoverServices();
-						}
-					}
-				}, 600);
-				/******/
-				/**** TIA STEP 6 - Disconnect ***/
-			} else {
-				if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-					onDeviceDisconnected();
-					mConnected = false;
-					if (mUserDisconnected) {
-						Log.i(TAG, "Device Disconnect");
-						mCallbacks.onDeviceDisconnected();
-						close();
-					} else {
-						Log.i(TAG, "Link loss occur");
-						mCallbacks.onLinklossOccur();
-						// We are not closing the connection here as the device should try to reconnect automatically.
-						// This may be only called when the shouldAutoConnect() method returned true.
-					}
-					return;
-				}
-				/******/
 
-				mCallbacks.onError(ERROR_CONNECTION_STATE_CHANGE, status);
-			}
+				/**** TIA STEP 6 - Disconnect ***/
 		}
 
 		@Override
@@ -676,9 +588,7 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 					// We have discovered services, let's start by reading the battery level value. If the characteristic is not readable, try to enable notifications.
 					// If there is no Battery service, proceed with the initialization queue.
 					/*** TIA STEP 5  Lecture **/
-					if (!readBatteryLevel())
-						nextRequest();
-					/***/
+
 				} else {
 					mCallbacks.onDeviceNotSupported();
 					disconnect();
@@ -736,8 +646,7 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 		public final void onDescriptorWrite(final BluetoothGatt gatt, final BluetoothGattDescriptor descriptor, final int status) {
 			if (status == BluetoothGatt.GATT_SUCCESS) {
 				if (isServiceChangedCCCD(descriptor)) {
-					if (!readBatteryLevel())
-						nextRequest();
+					nextRequest();
 				} else if (isBatteryLevelCCCD(descriptor)) {
 					final byte[] value = descriptor.getValue();
 					if (value != null && value.length > 0 && value[0] == 0x01) {

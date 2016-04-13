@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements PermissionRationa
 	private static final int REQUEST_EMPTY = 210;
 	private static final int REQUEST_LOCATION_SERVICES = 211;
 	private static final int REQUEST_ACCESS_COARSE_LOCATION = 212;
+	/*** STEP 2 : SCAN ****/
 
 	private static final long SCAN_PERIOD = 10000; // [ms]
 
@@ -113,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements PermissionRationa
 
 	private void prepareForScan() {
 		if (isBleSupported()) {
+			/*** STEP 2 : SCAN ****/
 			mScanner = BluetoothLeScannerCompat.getScanner();
 		} else {
 			showError(getString(R.string.ble_not_supported), false);
@@ -332,7 +334,7 @@ public class MainActivity extends AppCompatActivity implements PermissionRationa
 		// Clear the devices list
 		mBleDeviceListAdapter.clear();
 		mBleDeviceListAdapter.notifyDataSetChanged();
-
+		/*** STEP 2 : SCAN ****/
 		mScannerHandler.postDelayed(mStopScanningTask, SCAN_PERIOD);
 		mScanner.startScan(scanCallback);
 		mScanning = true;
