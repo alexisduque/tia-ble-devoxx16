@@ -615,6 +615,7 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 				 * NOTE: This applies only for bonded devices with Service Changed characteristic, but to be sure we will postpone
 				 * service discovery for all devices.
 				 */
+				/***** TIA STEP 4 Decouverte */
 				mHandler.postDelayed(new Runnable() {
 					@Override
 					public void run() {
@@ -624,6 +625,7 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 						}
 					}
 				}, 600);
+				/******/
 			} else {
 				if (newState == BluetoothProfile.STATE_DISCONNECTED) {
 					onDeviceDisconnected();
