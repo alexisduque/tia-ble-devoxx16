@@ -147,7 +147,7 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 	 * @return autoConnect flag value
 	 */
 	protected boolean shouldAutoConnect() {
-		return false;
+		return true;
 	}
 
 	/**
