@@ -174,6 +174,7 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 	 * @return true if device is to be disconnected. False if it was already disconnected.
 	 */
 	public boolean disconnect() {
+		/*** TIA STEP 6 - Disconnect ***/
 		mUserDisconnected = true;
 
 		if (mConnected && mBluetoothGatt != null) {
@@ -182,12 +183,14 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 			return true;
 		}
 		return false;
+		/****/
 	}
 
 	/**
 	 * Closes and releases resources. May be also used to unregister broadcast listeners.
 	 */
 	public void close() {
+		/** TIA STEP 6 - Disconnect **/
 		try {
 			mContext.unregisterReceiver(mBondingBroadcastReceiver);
 			mContext.unregisterReceiver(mPairingRequestBroadcastReceiver);
@@ -200,6 +203,8 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 			mBluetoothGatt = null;
 		}
 		mUserDisconnected = false;
+
+		/*****/
 	}
 
 	/**
@@ -628,22 +633,25 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 					}
 				}, 600);
 				/******/
+				/**** TIA STEP 6 - Disconnect ***/
 			} else {
 				if (newState == BluetoothProfile.STATE_DISCONNECTED) {
 					onDeviceDisconnected();
 					mConnected = false;
 					if (mUserDisconnected) {
+						Log.i(TAG, "Device Disconnect");
 						mCallbacks.onDeviceDisconnected();
 						close();
 					} else {
+						Log.i(TAG, "Link loss occur");
 						mCallbacks.onLinklossOccur();
 						// We are not closing the connection here as the device should try to reconnect automatically.
 						// This may be only called when the shouldAutoConnect() method returned true.
 					}
 					return;
 				}
+				/******/
 
-				// TODO Should the disconnect method be called or the connection is still valid? Does this ever happen?
 				mCallbacks.onError(ERROR_CONNECTION_STATE_CHANGE, status);
 			}
 		}
