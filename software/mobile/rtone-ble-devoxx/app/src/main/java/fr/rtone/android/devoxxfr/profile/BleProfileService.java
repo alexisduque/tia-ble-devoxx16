@@ -129,9 +129,6 @@ public abstract class BleProfileService extends Service implements BleManagerCal
 
 		if (mActivityFinished && mConnected) {
 			mActivityFinished = false;
-			// This method will read the Battery Level value, if possible and then try to enable battery notifications (if it has NOTIFY property).
-			// If the Battery Level characteristic has only the NOTIFY property, it will only try to enable notifications.
-			mBleManager.readBatteryLevel();
 		}
 	}
 

@@ -1,4 +1,5 @@
 _build/
 *.uvguix.*
 JLinkLog.txt
-
+*.iml
+.idea/

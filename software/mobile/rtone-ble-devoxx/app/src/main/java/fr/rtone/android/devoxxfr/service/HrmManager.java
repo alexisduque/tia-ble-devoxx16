@@ -115,19 +115,6 @@ public class HrmManager extends BleManager<HrmManagerCallbacks> {
 	}
 
 	public void send(final boolean onOff) {
-		// Are we connected?
-		if (mBatteryCharacteristic == null)
-			return;
-
-		byte [] command;
-		if (onOff){
-			enableNotifications(mHrmCharacteristic);
-			command = new byte [] {1};
-		} else {
-			command = new byte [] {0};
-			disableNotifications(mHrmCharacteristic);
-		}
-		mBatteryCharacteristic.setValue(command);
-		writeCharacteristic(mBatteryCharacteristic);;
+		/** STEP 5 - Enable notification */
 	}
 }

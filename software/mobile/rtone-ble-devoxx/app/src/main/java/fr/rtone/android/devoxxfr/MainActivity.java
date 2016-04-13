@@ -68,11 +68,9 @@ public class MainActivity extends AppCompatActivity implements PermissionRationa
 	private static final int REQUEST_EMPTY = 210;
 	private static final int REQUEST_LOCATION_SERVICES = 211;
 	private static final int REQUEST_ACCESS_COARSE_LOCATION = 212;
+	/*** STEP 2 : SCAN ****/
 
 	private static final long SCAN_PERIOD = 10000; // [ms]
-
-	/** LED Button Service UUID that's required in the device's Advertising packet to be shown. */
-	private final static String LBS_UUID_SERVICE = ("0000180F-0000-1000-8000-00805f9b34fb");
 
 	private BluetoothLeScannerCompat mScanner;
 	private ArrayList<ScanFilter> scanFilterList;
@@ -116,9 +114,7 @@ public class MainActivity extends AppCompatActivity implements PermissionRationa
 
 	private void prepareForScan() {
 		if (isBleSupported()) {
-			final ParcelUuid uuid = ParcelUuid.fromString(LBS_UUID_SERVICE);
-			scanFilterList = new ArrayList<>();
-			scanFilterList.add(new ScanFilter.Builder().setServiceUuid(uuid).build());
+			/*** STEP 2 : SCAN ****/
 			mScanner = BluetoothLeScannerCompat.getScanner();
 		} else {
 			showError(getString(R.string.ble_not_supported), false);
@@ -335,22 +331,12 @@ public class MainActivity extends AppCompatActivity implements PermissionRationa
 	}
 
 	private void startLeScan() {
-		final ScanSettings settings = new ScanSettings.Builder()
-				.setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-						// Refresh the devices list every second
-				.setReportDelay(1000)
-						// Hardware filtering has some issues on selected devices
-				.setUseHardwareFilteringIfSupported(false)
-						// Samsung S6 and S6 Edge report equal value of RSSI for all devices. In this app we ignore the RSSI.
-					/*.setUseHardwareBatchingIfSupported(false)*/
-				.build();
-
 		// Clear the devices list
 		mBleDeviceListAdapter.clear();
 		mBleDeviceListAdapter.notifyDataSetChanged();
-
+		/*** STEP 2 : SCAN ****/
 		mScannerHandler.postDelayed(mStopScanningTask, SCAN_PERIOD);
-		mScanner.startScan(scanFilterList, settings, scanCallback);
+		mScanner.startScan(scanCallback);
 		mScanning = true;
 		invalidateOptionsMenu();
 	}
@@ -373,6 +359,13 @@ public class MainActivity extends AppCompatActivity implements PermissionRationa
 		@Override
 		public void onScanResult(final int callbackType, final ScanResult result) {
 			// We scan with report delay > 0. This will never be called.
+			boolean newDeviceFound = false;
+			if (!mBleDeviceListAdapter.hasDevice(result)) {
+				newDeviceFound = true;
+				mBleDeviceListAdapter.addDevice(new ExtendedBluetoothDevice(result));
+			}
+			if (newDeviceFound)
+					mBleDeviceListAdapter.notifyDataSetChanged();
 		}
 
 		@Override
