@@ -69,6 +69,8 @@ public class MainActivity extends AppCompatActivity implements PermissionRationa
 	private static final int REQUEST_LOCATION_SERVICES = 211;
 	private static final int REQUEST_ACCESS_COARSE_LOCATION = 212;
 	/*** STEP 2 : SCAN ****/
+	private final static String HRM_UUID_SERVICE = ("0000180D-0000-1000-8000-00805f9b34fb");
+
 
 	private static final long SCAN_PERIOD = 10000; // [ms]
 
@@ -115,6 +117,9 @@ public class MainActivity extends AppCompatActivity implements PermissionRationa
 	private void prepareForScan() {
 		if (isBleSupported()) {
 			/*** STEP 2 : SCAN ****/
+			final ParcelUuid uuid = ParcelUuid.fromString(HRM_UUID_SERVICE);
+			scanFilterList = new ArrayList<>();
+			scanFilterList.add(new ScanFilter.Builder().setServiceUuid(uuid).build());
 			mScanner = BluetoothLeScannerCompat.getScanner();
 		} else {
 			showError(getString(R.string.ble_not_supported), false);
@@ -335,8 +340,18 @@ public class MainActivity extends AppCompatActivity implements PermissionRationa
 		mBleDeviceListAdapter.clear();
 		mBleDeviceListAdapter.notifyDataSetChanged();
 		/*** STEP 2 : SCAN ****/
+		final ScanSettings settings = new ScanSettings.Builder()
+				.setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+				// Refresh the devices list every second
+				.setReportDelay(1000)
+				// Hardware filtering has some issues on selected devices
+				.setUseHardwareFilteringIfSupported(false)
+				// Samsung S6 and S6 Edge report equal value of RSSI for all devices. In this app we ignore the RSSI.
+			/*.setUseHardwareBatchingIfSupported(false)*/
+				.build();
+
 		mScannerHandler.postDelayed(mStopScanningTask, SCAN_PERIOD);
-		mScanner.startScan(scanCallback);
+		mScanner.startScan(scanFilterList, settings, scanCallback);
 		mScanning = true;
 		invalidateOptionsMenu();
 	}

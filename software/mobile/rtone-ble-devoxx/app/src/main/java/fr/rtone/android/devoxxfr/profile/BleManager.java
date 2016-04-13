@@ -148,7 +148,7 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 	 */
 	protected boolean shouldAutoConnect() {
 		/*** STEP 3 : Connexion **/
-		return true;
+		return false;
 	}
 
 	/**
@@ -176,6 +176,13 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 	 */
 	public boolean disconnect() {
 		/*** TIA STEP 6 - Disconnect ***/
+		mUserDisconnected = true;
+
+		if (mConnected && mBluetoothGatt != null) {
+			mCallbacks.onDeviceDisconnecting();
+			mBluetoothGatt.disconnect();
+			return true;
+		}
 		return false;
 	}
 
@@ -184,6 +191,18 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 	 */
 	public void close() {
 		/** TIA STEP 6 - Disconnect **/
+		try {
+			mContext.unregisterReceiver(mBondingBroadcastReceiver);
+			mContext.unregisterReceiver(mPairingRequestBroadcastReceiver);
+		} catch (Exception e) {
+			// the receiver must have been not registered or unregistered before
+		}
+		if (mBluetoothGatt != null) {
+			Log.d(TAG, "Close the GATT");
+			mBluetoothGatt.close();
+			mBluetoothGatt = null;
+		}
+		mUserDisconnected = false;
 	}
 
 	/**
@@ -269,6 +288,23 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 	 */
 	protected final boolean enableNotifications(final BluetoothGattCharacteristic characteristic) {
 		/*** TIA STEP 5 NOTIFICATION ****/
+		final BluetoothGatt gatt = mBluetoothGatt;
+		if (gatt == null || characteristic == null)
+			return false;
+
+		final int properties = characteristic.getProperties();
+		if ((properties & BluetoothGattCharacteristic.PROPERTY_NOTIFY) == 0) {
+			Log.d(TAG, "Notifications unvailablme for :" + characteristic.getUuid().toString());
+			return false;
+
+		}
+
+		gatt.setCharacteristicNotification(characteristic, true);
+		final BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIG_DESCRIPTOR_UUID);
+		if (descriptor != null) {
+			descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+			return gatt.writeDescriptor(descriptor);
+		}
 		return false;
 	}
 
@@ -562,7 +598,37 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 		@Override
 		public final void onConnectionStateChange(final BluetoothGatt gatt, final int status, final int newState) {
 				/***** TIA STEP 3 Connection */
+			if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
+				// Notify the parent activity/service
+				mConnected = true;
+				mCallbacks.onDeviceConnected();
 
+				mHandler.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						if (gatt.getDevice().getBondState() != BluetoothDevice.BOND_BONDING) {
+							gatt.discoverServices();
+						}
+					}
+				}, 600);
+			} else {
+				if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+					onDeviceDisconnected();
+					mConnected = false;
+					if (mUserDisconnected) {
+						Log.i(TAG, "Device Disconnect");
+						mCallbacks.onDeviceDisconnected();
+						close();
+					} else {
+						Log.i(TAG, "Link loss occur");
+						mCallbacks.onLinklossOccur();
+						// We are not closing the connection here as the device should try to reconnect automatically.
+						// This may be only called when the shouldAutoConnect() method returned true.
+					}
+					return;
+				}
+				mCallbacks.onError(ERROR_CONNECTION_STATE_CHANGE, status);
+			}
 				/***** TIA STEP 4 Decouverte */
 
 				/**** TIA STEP 6 - Disconnect ***/
@@ -588,6 +654,8 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 					// We have discovered services, let's start by reading the battery level value. If the characteristic is not readable, try to enable notifications.
 					// If there is no Battery service, proceed with the initialization queue.
 					/*** TIA STEP 5  Lecture **/
+					if (!readBatteryLevel())
+						nextRequest();
 
 				} else {
 					mCallbacks.onDeviceNotSupported();
