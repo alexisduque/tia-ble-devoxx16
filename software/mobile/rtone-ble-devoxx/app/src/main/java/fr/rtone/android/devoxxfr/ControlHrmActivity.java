@@ -32,7 +32,7 @@ import fr.rtone.android.devoxxfr.profile.BleProfileService;
 public class ControlHrmActivity extends AppCompatActivity {
 	private HrmService.HrmBinder mHrmDevice;
 	private Button mActionOnOff, mActionConnect;
-	private ImageView mImageBulb;
+	private ImageView mImageHeart;
 	private TextView mHrmText;
 	private View mParentView;
 	private View mBackgroundView;
@@ -47,10 +47,10 @@ public class ControlHrmActivity extends AppCompatActivity {
 				mActionConnect.setText(getString(R.string.action_disconnect));
 
 				if (mHrmDevice.isOn()) {
-					mImageBulb.setImageDrawable(ContextCompat.getDrawable(ControlHrmActivity.this, R.drawable.heart_rate_red));
+					mImageHeart.setImageDrawable(ContextCompat.getDrawable(ControlHrmActivity.this, R.drawable.heart_rate_red));
 					mActionOnOff.setText(getString(R.string.turn_off));
 				} else {
-					mImageBulb.setImageDrawable(ContextCompat.getDrawable(ControlHrmActivity.this, R.drawable.heart_rate_red_off));
+					mImageHeart.setImageDrawable(ContextCompat.getDrawable(ControlHrmActivity.this, R.drawable.heart_rate_red_off));
 					mActionOnOff.setText(getString(R.string.turn_on));
 					mHrmText.setText("");
 				}
@@ -87,7 +87,7 @@ public class ControlHrmActivity extends AppCompatActivity {
 
 		mActionOnOff = (Button) findViewById(R.id.button_hrm);
 		mActionConnect = (Button) findViewById(R.id.action_connect);
-		mImageBulb = (ImageView) findViewById(R.id.img_hrm);
+		mImageHeart = (ImageView) findViewById(R.id.img_hrm);
 		mBackgroundView = findViewById(R.id.background_view);
 		mParentView = findViewById(R.id.relative_layout_control);
 		mHrmText = (TextView) findViewById(R.id.hrmText);
@@ -95,6 +95,7 @@ public class ControlHrmActivity extends AppCompatActivity {
 		mActionOnOff.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				/*** TIA  STEP 5 Enable Notification */
 				if (mHrmDevice != null && mHrmDevice.isConnected()) {
 					if (mActionOnOff.getText().equals(getString(R.string.turn_on))) {
 						mHrmDevice.send(true);
@@ -104,6 +105,7 @@ public class ControlHrmActivity extends AppCompatActivity {
 				} else {
 					showError(getString(R.string.please_connect));
 				}
+				/******/
 			}
 		});
 
@@ -162,10 +164,10 @@ public class ControlHrmActivity extends AppCompatActivity {
 				case HrmService.BROADCAST_SENSOR_STATE_CHANGED: {
 					final boolean flag = intent.getBooleanExtra(HrmService.EXTRA_DATA, false);
 					if (flag) {
-						mImageBulb.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.heart_rate_red));
+						mImageHeart.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.heart_rate_red));
 						mActionOnOff.setText(getString(R.string.turn_off));
 					} else {
-						mImageBulb.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.heart_rate_red_off));
+						mImageHeart.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.heart_rate_red_off));
 						mActionOnOff.setText(getString(R.string.turn_on));
 						mHrmText.setText("");
 					}
@@ -181,7 +183,7 @@ public class ControlHrmActivity extends AppCompatActivity {
 							mActionConnect.setText(getString(R.string.action_connect));
 							mActionOnOff.setText(getString(R.string.turn_on));
 							mHrmText.setText("");
-							mImageBulb.setImageDrawable(ContextCompat.getDrawable(ControlHrmActivity.this, R.drawable.heart_rate_red_off));
+							mImageHeart.setImageDrawable(ContextCompat.getDrawable(ControlHrmActivity.this, R.drawable.heart_rate_red_off));
 							break;
 					}
 					break;

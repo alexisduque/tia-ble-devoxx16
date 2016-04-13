@@ -284,6 +284,7 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 	 * @return true is the request has been sent, false if one of the arguments was <code>null</code> or the characteristic does not have the CCCD.
 	 */
 	protected final boolean enableNotifications(final BluetoothGattCharacteristic characteristic) {
+		/*** TIA STEP 5 NOTIFICATION ****/
 		final BluetoothGatt gatt = mBluetoothGatt;
 		if (gatt == null || characteristic == null)
 			return false;
@@ -302,6 +303,7 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 			descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
 			return gatt.writeDescriptor(descriptor);
 		}
+		/****/
 		return false;
 	}
 
@@ -665,8 +667,10 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 
 					// We have discovered services, let's start by reading the battery level value. If the characteristic is not readable, try to enable notifications.
 					// If there is no Battery service, proceed with the initialization queue.
+					/*** TIA STEP 5  Lecture **/
 					if (!readBatteryLevel())
 						nextRequest();
+					/***/
 				} else {
 					mCallbacks.onDeviceNotSupported();
 					disconnect();
