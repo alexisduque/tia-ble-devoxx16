@@ -4,7 +4,7 @@
  *      *** Do not modify ! ***
  *
  * Project: 'ble_app_hrs_s110_pca10028' 
- * Target:  'nrf51422_xxac_s110' 
+ * Target:  'nrf nordic beaco' 
  */
 
 #ifndef RTE_COMPONENTS_H
