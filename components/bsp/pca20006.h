@@ -19,15 +19,15 @@
 #define LED_RGB_GREEN  12
 #define LED_RGB_BLUE   15
 
-#define BSP_LED_0 LED_RGB_RED
-#define BSP_LED_1 LED_RGB_GREEN
+#define BSP_LED_0 LED_RGB_GREEN
+#define BSP_LED_1 LED_RGB_RED
 #define BSP_LED_2 LED_RGB_BLUE
 
 #define BSP_LED_0_MASK    (1<<BSP_LED_0)
 #define BSP_LED_1_MASK    (1<<BSP_LED_1)
 #define BSP_LED_2_MASK    (1<<BSP_LED_2)
 #define LEDS_MASK      (BSP_LED_0_MASK | BSP_LED_1_MASK | BSP_LED_2_MASK)
-#define LEDS_INV_MASK  0x00000000
+#define LEDS_INV_MASK  LEDS_MASK
 
 #define BUTTON_0       8
 #define BUTTON_1       18

@@ -1,5 +1,4 @@
-PROJECT_NAME := ble_app_hrs_s110_pca10028
-
+PROJECT_NAME := ble_app_hrs_s110_pca20006
 export OUTPUT_FILENAME
 #MAKEFILE_NAME := $(CURDIR)/$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
 MAKEFILE_NAME := $(MAKEFILE_LIST)
@@ -103,12 +102,12 @@ INC_PATHS += -I$(abspath ../../../../../../components/ble/ble_services/ble_hrs)
 OBJECT_DIRECTORY = _build
 LISTING_DIRECTORY = $(OBJECT_DIRECTORY)
 OUTPUT_BINARY_DIRECTORY = $(OBJECT_DIRECTORY)
-OUTPUT_FILENAME=nrf51422_xxac_s110
+OUTPUT_FILENAME=nrf51822_xxaa_s110
 # Sorting removes duplicates
 BUILD_DIRECTORIES := $(sort $(OBJECT_DIRECTORY) $(OUTPUT_BINARY_DIRECTORY) $(LISTING_DIRECTORY) )
 
 #flags common to all targets
-CFLAGS  = -DBOARD_PCA10028
+CFLAGS  = -DBOARD_PCA20006
 CFLAGS += -DSWI_DISABLE0
 CFLAGS += -DSOFTDEVICE_PRESENT
 CFLAGS += -DNRF51
@@ -133,24 +132,24 @@ LDFLAGS += --specs=nano.specs -lc -lnosys
 
 # Assembler flags
 ASMFLAGS += -x assembler-with-cpp
-ASMFLAGS += -DBOARD_PCA10028
+ASMFLAGS += -DBOARD_PCA20006
 ASMFLAGS += -DSWI_DISABLE0
 ASMFLAGS += -DSOFTDEVICE_PRESENT
 ASMFLAGS += -DNRF51
 ASMFLAGS += -DS110
 ASMFLAGS += -DBLE_STACK_SUPPORT_REQD
 #default target - first one defined
-default: clean nrf51422_xxac_s110
+default: clean nrf51822_xxaa_s110
 
 #building all targets
 all: clean
 	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e cleanobj
-	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e nrf51422_xxac_s110
+	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e nrf51822_xxaa_s110
 
 #target for printing all targets
 help:
 	@echo following targets are available:
-	@echo 	nrf51422_xxac_s110
+	@echo 	nrf51822_xxaa_s110
 	@echo 	flash_softdevice
 
 
@@ -167,9 +166,9 @@ vpath %.s $(ASM_PATHS)
 
 OBJECTS = $(C_OBJECTS) $(ASM_OBJECTS)
 
-nrf51422_xxac_s110: OUTPUT_FILENAME := nrf51422_xxac_s110
-nrf51422_xxac_s110: LINKER_SCRIPT=ble_app_hrs_gcc_nrf51.ld
-nrf51422_xxac_s110: $(BUILD_DIRECTORIES) $(OBJECTS)
+nrf51822_xxaa_s110: OUTPUT_FILENAME := nrf51822_xxaa_s110
+nrf51822_xxaa_s110: LINKER_SCRIPT=ble_app_hrs_gcc_nrf51.ld
+nrf51822_xxaa_s110: $(BUILD_DIRECTORIES) $(OBJECTS)
 	@echo Linking target: $(OUTPUT_FILENAME).out
 	$(NO_ECHO)$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
 	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e finalize
