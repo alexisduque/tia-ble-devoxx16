@@ -29,6 +29,8 @@
 			android:name="fr.rtone.android.devoxxfr.MainActivity"
 			android:icon="@drawable/ic_hrm_feature"
 			android:label="@string/feature_name"
+			android:screenOrientation="portrait"
+			android:configChanges="orientation|keyboardHidden"
 			android:launchMode="singleTop">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN"/>
@@ -37,6 +39,8 @@
 			</intent-filter>
 		</activity>
 		<activity
+			android:screenOrientation="portrait"
+			android:configChanges="orientation|keyboardHidden"
 			android:name=".ControlHrmActivity"
 			android:launchMode="singleTop">
 		</activity>

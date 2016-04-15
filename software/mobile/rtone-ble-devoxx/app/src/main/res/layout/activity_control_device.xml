@@ -57,7 +57,7 @@
 		android:id="@+id/background_view"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:background="@color/background_yellow"
+		android:background="@color/colorGreen"
 		android:visibility="invisible"/>
 
 	<RelativeLayout
@@ -113,6 +113,6 @@
 		android:layout_centerHorizontal="true"
 		android:layout_marginBottom="@dimen/activity_vertical_margin_bottom"
 		android:text="@string/action_connect"
-		android:background="@color/colorPrimary" />
+		android:background="@color/common_signin_btn_default_background" />
 
 </RelativeLayout>

@@ -45,6 +45,8 @@ public class ControlHrmActivity extends AppCompatActivity {
 
 			if (mHrmDevice.isConnected()) {
 				mActionConnect.setText(getString(R.string.action_disconnect));
+				mActionConnect.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorGreen ));
+
 
 				if (mHrmDevice.isOn()) {
 					mImageHeart.setImageDrawable(ContextCompat.getDrawable(ControlHrmActivity.this, R.drawable.heart_rate_red));
@@ -62,6 +64,7 @@ public class ControlHrmActivity extends AppCompatActivity {
 				}
 			} else {
 				mActionConnect.setText(getString(R.string.action_connect));
+				mActionConnect.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.common_signin_btn_default_background));
 			}
 		}
 
@@ -177,9 +180,11 @@ public class ControlHrmActivity extends AppCompatActivity {
 					switch (value) {
 						case BleProfileService.STATE_CONNECTED:
 							mActionConnect.setText(getString(R.string.action_disconnect));
+							mActionConnect.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
 							break;
 						case BleProfileService.STATE_DISCONNECTED:
 							mActionConnect.setText(getString(R.string.action_connect));
+							mActionConnect.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.common_signin_btn_default_background));
 							mActionOnOff.setText(getString(R.string.turn_on));
 							mHrmText.setText("");
 							mImageHeart.setImageDrawable(ContextCompat.getDrawable(ControlHrmActivity.this, R.drawable.heart_rate_red_off));
