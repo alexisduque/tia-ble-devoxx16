@@ -261,6 +261,14 @@ uint32_t ble_advertising_start(ble_adv_mode_t advertising_mode)
     adv_params.fp          = BLE_GAP_ADV_FP_ANY;
     adv_params.p_whitelist = NULL;
 
+    static ble_gap_adv_ch_mask_t ch_off;
+    
+    ch_off.ch_37_off = 0;
+    ch_off.ch_38_off = 1;
+    ch_off.ch_39_off = 1;
+    
+    adv_params.channel_mask = ch_off;
+    
     // Set advertising parameters and events according to selected advertising mode.
     switch (m_adv_mode_current)
     {

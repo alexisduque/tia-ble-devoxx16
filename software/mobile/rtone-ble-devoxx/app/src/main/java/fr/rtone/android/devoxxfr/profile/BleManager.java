@@ -176,10 +176,12 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 	 */
 	public boolean disconnect() {
 		/*** TIA STEP 6 - Disconnect ***/
-		if (mBluetoothGatt != null) {
-			Log.d(TAG, "Close the GATT");
-			mBluetoothGatt.close();
-			mBluetoothGatt = null;
+		mUserDisconnected = true;
+
+		if (mConnected && mBluetoothGatt != null) {
+			mCallbacks.onDeviceDisconnecting();
+			mBluetoothGatt.disconnect();
+			return true;
 		}
 		return false;
 	}
@@ -189,6 +191,18 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 	 */
 	public void close() {
 		/** TIA STEP 6 - Disconnect **/
+		try {
+			mContext.unregisterReceiver(mBondingBroadcastReceiver);
+			mContext.unregisterReceiver(mPairingRequestBroadcastReceiver);
+		} catch (Exception e) {
+			// the receiver must have been not registered or unregistered before
+		}
+		if (mBluetoothGatt != null) {
+			Log.d(TAG, "Close the GATT");
+			mBluetoothGatt.close();
+			mBluetoothGatt = null;
+		}
+		mUserDisconnected = false;
 	}
 
 	/**
