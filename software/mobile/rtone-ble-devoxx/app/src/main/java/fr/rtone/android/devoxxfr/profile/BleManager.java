@@ -559,6 +559,14 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 				// Notify the parent activity/service
 				mConnected = true;
 				mCallbacks.onDeviceConnected();
+				mHandler.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						if (gatt.getDevice().getBondState() != BluetoothDevice.BOND_BONDING) {
+							gatt.discoverServices();
+						}
+					}
+				}, 600); // Add 600ms delay, Nordic Recommendation
 			}
 
 				/***** TIA STEP 4 Decouverte */
