@@ -99,6 +99,15 @@ public class ControlHrmActivity extends AppCompatActivity {
 			@Override
 			public void onClick(View v) {
 				/*** TIA  STEP 5 Enable Notification */
+				if (mHrmDevice != null && mHrmDevice.isConnected()) {
+					if (mActionOnOff.getText().equals(getString(R.string.turn_on))) {
+						mHrmDevice.send(true);
+					} else {
+						mHrmDevice.send(false);
+					}
+				} else {
+					showError(getString(R.string.please_connect));
+				}
 			}
 		});
 

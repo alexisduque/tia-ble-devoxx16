@@ -269,6 +269,23 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 	 */
 	protected final boolean enableNotifications(final BluetoothGattCharacteristic characteristic) {
 		/*** TIA STEP 5 NOTIFICATION ****/
+		final BluetoothGatt gatt = mBluetoothGatt;
+		if (gatt == null || characteristic == null)
+			return false;
+
+		final int properties = characteristic.getProperties();
+		if ((properties & BluetoothGattCharacteristic.PROPERTY_NOTIFY) == 0) {
+			Log.d(TAG, "Notifications unvailablme for :" + characteristic.getUuid().toString());
+			return false;
+
+		}
+
+		gatt.setCharacteristicNotification(characteristic, true);
+		final BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIG_DESCRIPTOR_UUID);
+		if (descriptor != null) {
+			descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+			return gatt.writeDescriptor(descriptor);
+		}
 		return false;
 	}
 
