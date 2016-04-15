@@ -594,6 +594,9 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 					// We have discovered services, let's start by reading the battery level value. If the characteristic is not readable, try to enable notifications.
 					// If there is no Battery service, proceed with the initialization queue.
 					/*** TIA STEP 5  Lecture **/
+					if (!readBatteryLevel())
+						nextRequest();
+
 
 				} else {
 					mCallbacks.onDeviceNotSupported();
