@@ -176,6 +176,11 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 	 */
 	public boolean disconnect() {
 		/*** TIA STEP 6 - Disconnect ***/
+		if (mBluetoothGatt != null) {
+			Log.d(TAG, "Close the GATT");
+			mBluetoothGatt.close();
+			mBluetoothGatt = null;
+		}
 		return false;
 	}
 
@@ -584,11 +589,25 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 						}
 					}
 				}, 600); // Add 600ms delay, Nordic Recommendation
-			}
-
-				/***** TIA STEP 4 Decouverte */
-
 				/**** TIA STEP 6 - Disconnect ***/
+			} else {
+				if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+					onDeviceDisconnected();
+					mConnected = false;
+					if (mUserDisconnected) {
+						Log.i(TAG, "Device Disconnect");
+						mCallbacks.onDeviceDisconnected();
+						close();
+					} else {
+						Log.i(TAG, "Link loss occur");
+						mCallbacks.onLinklossOccur();
+						// We are not closing the connection here as the device should try to reconnect automatically.
+						// This may be only called when the shouldAutoConnect() method returned true.
+					}
+					return;
+				}
+				mCallbacks.onError(ERROR_CONNECTION_STATE_CHANGE, status);
+			}
 		}
 
 		@Override
