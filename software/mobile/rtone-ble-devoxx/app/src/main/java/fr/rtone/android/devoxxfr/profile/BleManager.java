@@ -148,7 +148,7 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 	 */
 	protected boolean shouldAutoConnect() {
 		/*** STEP 3 : Connexion **/
-		return true;
+		return false;
 	}
 
 	/**
@@ -555,6 +555,11 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 		@Override
 		public final void onConnectionStateChange(final BluetoothGatt gatt, final int status, final int newState) {
 				/***** TIA STEP 3 Connection */
+			if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
+				// Notify the parent activity/service
+				mConnected = true;
+				mCallbacks.onDeviceConnected();
+			}
 
 				/***** TIA STEP 4 Decouverte */
 
