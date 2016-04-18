@@ -121,7 +121,7 @@ static ble_uuid_t m_adv_uuids[] = {{BLE_UUID_HEART_RATE_SERVICE,         BLE_UUI
                                    {BLE_UUID_DEVICE_INFORMATION_SERVICE, BLE_UUID_TYPE_BLE}}; /**< Universally unique service identifiers. */
 
 
-static app_bond_table_t                 m_app_bond_table;                                   
+static app_bond_table_t                 m_app_bond_table;
 
 /**@brief Callback function for asserts in the SoftDevice.
  *
@@ -665,69 +665,69 @@ static uint32_t device_manager_evt_handler(dm_handle_t const * p_handle,
                                            ret_code_t        event_result)
 {
     uint32_t err_code;
-   
+
     static bool device_delete_all_started;
-    
+
     // Recovery in the event of DM_DEVICE_CONTEXT_FULL
     if(event_result == DM_DEVICE_CONTEXT_FULL)
     {
-        /* Clear all devices from the bond table*/ 
+        /* Clear all devices from the bond table*/
         err_code = dm_device_delete_all(&m_app_handle);
         APP_ERROR_CHECK(err_code);
-        
+
         device_delete_all_started = true;
-             
+
     }
     else
     {
-        APP_ERROR_CHECK(event_result);   
+        APP_ERROR_CHECK(event_result);
     }
-    
+
     if (p_event->event_id == DM_EVT_DEVICE_CONTEXT_STORED)
     {
         table_index_t table_index;
-        
-        //Find first and last bond created from m_bond_index_table 
+
+        //Find first and last bond created from m_bond_index_table
         app_bond_find(&m_app_bond_table,&table_index);
-        
+
 		//Increment counter if a new bond was created
         if(!(table_index.mr_cnt_val >= m_app_bond_table.app_bond_cnt[p_handle->device_id]))
         {
            table_index.mr_cnt_val++;
            m_app_bond_table.app_bond_cnt[p_handle->device_id] = table_index.mr_cnt_val;
         }
-                
-        //Delete first created bond if bond table is full 
+
+        //Delete first created bond if bond table is full
         if(((table_index.mr_cnt_val-table_index.lr_cnt_val)== DEVICE_MANAGER_MAX_BONDS-1)
              && (table_index.lr_cnt_val != NO_APP_CONTEXT))
           {
                 uint32_t err_code;
                 dm_handle_t device;
-                
+
                 device.appl_id = 0;
-                    
-                m_app_bond_table.app_bond_cnt[table_index.lr_index]=NO_APP_CONTEXT; 
+
+                m_app_bond_table.app_bond_cnt[table_index.lr_index]=NO_APP_CONTEXT;
                 device.device_id = m_app_bond_table.device_id[table_index.lr_index];
-                    
-                err_code = dm_device_delete(&device); 
+
+                err_code = dm_device_delete(&device);
                 APP_ERROR_CHECK(err_code);
-                    
-          }   
-                
+
+          }
+
         //Update the app context for new device
-        app_bond_update_context(&m_app_bond_table,p_handle); 
-        
+        app_bond_update_context(&m_app_bond_table,p_handle);
+
     }
     else if (p_event->event_id ==DM_EVT_DEVICE_CONTEXT_DELETED)
     {
-        
-         /* Wait for all devices to be cleared before perfoming a sys reset */ 
+
+         /* Wait for all devices to be cleared before perfoming a sys reset */
          if(device_delete_all_started && (p_handle->device_id == DEVICE_MANAGER_MAX_BONDS -1))
          {
              err_code = sd_nvic_SystemReset();
              APP_ERROR_CHECK(err_code);
          }
-         
+
     }
 
 
@@ -766,9 +766,9 @@ static void device_manager_init(bool erase_bonds)
 
     err_code = dm_register(&m_app_handle, &register_param);
     APP_ERROR_CHECK(err_code);
-    
+
     app_bond_init(&m_app_bond_table);
-    
+
     for(uint8_t i = 0; i < DEVICE_MANAGER_MAX_BONDS; i++)
     {
         APP_LOG("[APP][ID: %d], Application context : %08X\r\n",m_app_bond_table.device_id[i],(unsigned int) m_app_bond_table.app_bond_cnt[i]);
@@ -801,6 +801,16 @@ static void advertising_init(void)
     APP_ERROR_CHECK(err_code);
 }
 
+static void button_event_handler(uint8_t pin_no, uint8_t button_action)
+{
+    switch (pin_no)
+    {
+        case BSP_BUTTON_1:
+            NVIC_SystemReset();
+            break;
+    }
+}
+
 
 /**@brief Function for initializing buttons and leds.
  *
@@ -811,7 +821,7 @@ static void buttons_leds_init(bool * p_erase_bonds)
     bsp_event_t startup_event;
 
     uint32_t err_code = bsp_init(BSP_INIT_LED | BSP_INIT_BUTTONS,
-                                 APP_TIMER_TICKS(100, APP_TIMER_PRESCALER), 
+                                 APP_TIMER_TICKS(100, APP_TIMER_PRESCALER),
                                  bsp_event_handler);
     APP_ERROR_CHECK(err_code);
 
@@ -819,6 +829,13 @@ static void buttons_leds_init(bool * p_erase_bonds)
     APP_ERROR_CHECK(err_code);
 
     *p_erase_bonds = (startup_event == BSP_EVENT_CLEAR_BONDING_DATA);
+
+    static app_button_cfg_t buttons[] =
+   {
+       {BSP_BUTTON_1, false, BUTTON_PULL, button_event_handler}
+   };
+
+   app_button_init(buttons, sizeof(buttons) / sizeof(buttons[0]), APP_TIMER_TICKS(100, APP_TIMER_PRESCALER));
 }
 
 
