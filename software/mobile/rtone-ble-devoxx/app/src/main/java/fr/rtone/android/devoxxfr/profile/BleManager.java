@@ -325,7 +325,13 @@ public abstract class BleManager<E extends BleManagerCallbacks> {
 			return false;
 		}
 
-		return gatt.setCharacteristicNotification(characteristic, false);
+		gatt.setCharacteristicNotification(characteristic, false);
+		final BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIG_DESCRIPTOR_UUID);
+		if (descriptor != null) {
+			descriptor.setValue(BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
+			return gatt.writeDescriptor(descriptor);
+		}
+		return false;
 	}
 
 	/**
